@@ -47,10 +47,10 @@ ros::Time SmartekCameraNode::sync_timestamp(UINT64 c_cam_uint){
     double c_cam = (double) c_cam_uint / 1000000.0;
     if(m_imageInfo_->GetImageID() < 10){
         p_cam = c_cam;
-        p_out = c_ros;
+        p_out = c_ros + config_.TimeOffset / 1000.0;
     }
 
-    double c_err = p_out + (c_cam - p_cam) - c_ros; // difference between current and calculated time
+    double c_err = (p_out - config_.TimeOffset / 1000.0) + (c_cam - p_cam) - c_ros; // difference between current and calculated time
     double d_err = c_err - p_err; // derivative of error
     i_err = i_err + c_err; // integral of error
 
@@ -63,7 +63,7 @@ ros::Time SmartekCameraNode::sync_timestamp(UINT64 c_cam_uint){
     p_out = c_out;
     p_err = c_err;
 
-    //ROS_INFO("ROS_TIME: %f\tTIMESTAMP: %f\tERROR: %f\tPID_RES: %f", c_ros, c_out, c_err, pid_res);
+    ROS_INFO("ROS_TIME: %f\tTIMESTAMP: %f\tERROR: %f\tPID_RES: %f", c_ros, c_out, c_err, pid_res);
 
     return ros::Time(c_out);
 }
